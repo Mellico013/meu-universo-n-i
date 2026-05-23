@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nossa Viagem N+I</title>
+  <link rel="stylesheet" href="index.css">
+  <style>
+    #story-container {
+      transition: opacity 1s ease;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="intro" id="intro">
+    <h1>Nossa viagem pelo universo</h1>
+    <p>
+      Dizem que somos feitos de poeira de estrelas...<br>
+      Deixa eu te mostrar como a nossa história brilha.
+    </p>
+    <div class="credits">Criado por Nicolas Mellico</div>
+    <button id="startBtn">Começar</button>
+  </div>
+
+  <canvas id="space"></canvas>
+
+  <div id="story-container" class="story-text">
+    <img id="story-image" src="" alt="Nossa Foto">
+    <div id="story-message"></div>
+  </div>
+
+  <div class="finalBox" id="finalBox">
+    <div class="finalCard">
+      <h2>Quer continuar essa história comigo?</h2>
+      <button class="yes" id="yesBtn">Sim</button>
+      <button class="no" id="noBtn">Não</button>
+    </div>
+  </div>
+
+  <div class="goodMessage" id="goodMessage">
+    O universo é gigante, mas sorte a minha ter te encontrado nele minha Little Baby. ❤️
+  </div>
+
+  <audio id="music" loop>
+    <source src="John Legend - All of Me (Official Video).mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const timeline = [
+      /*1*/  { time: 2000, text: "No começo, éramos como dois átomos perdidos no vácuo...", img: "WhatsApp Image 2026-05-23 at 19.48.04.jpeg" },
+      /*2*/ { time: 18000, text: "Até que a gravidade decidiu nos aproximar.", img: "WhatsApp Image 2026-05-23 at 18.49.20 (3).jpeg" },
+      /*3*/ { time: 29000, text: "No universo inteiro, não existe lugar mais seguro do que perto de você. Você virou o meu lar.", img: "WhatsApp Image 2026-05-23 at 19.19.55.jpeg" },
+      /*4*/ { time: 61000, text: "E cada dia que ficavamos juntos virou um planeta inteiro para explorarmos.", img: "WhatsApp Image 2026-05-23 at 18.49.20 (2).jpeg" },
+      /*5*/ { time: 80000, text: "Entre bilhões de galáxias e estrelas, o universo conspirou pra que os nossos mundos se encostassem assim e eu não trocaria esse cantinho por nada.", img: "WhatsApp Image 2026-05-23 at 19.19.55 (1).jpeg" },
+      /*6*/ { time: 115000, text: "No vasto silêncio do espaço, a tua alegria é a frequência mais pura que conheço, uma explosão de vida que faz todas as estrelas parecerem pequenas perto da tua energia.", img: "WhatsApp Image 2026-05-23 at 19.19.56.jpeg" }
+    ];
+
+    const FINAL_BOX_TIME = 155000;
+
+    const intro = document.getElementById("intro");
+    const startBtn = document.getElementById("startBtn");
+    const canvas = document.getElementById("space");
+    const ctx = canvas.getContext("2d");
+    const finalBox = document.getElementById("finalBox");
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const goodMessage = document.getElementById("goodMessage");
+    const storyContainer = document.getElementById("story-container");
+    const storyImg = document.getElementById("story-image");
+    const storyMsg = document.getElementById("story-message");
+    const music = document.getElementById("music");
+
+    canvas.width = innerWidth;
+    canvas.height = innerHeight;
+
+    let stars = [];
+    let dust = [];
+    let meteors = [];
+    const starColors = ["white", "#ffe9a6", "#a6d8ff", "#ffb3b3"];
+
+    function createStars() {
+      stars = [];
+      for (let i = 0; i < 900; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          z: Math.random() * canvas.width,
+          color: starColors[Math.floor(Math.random() * starColors.length)]
+        });
+      }
+    }
+
+    function createDust() {
+      dust = [];
+      for (let i = 0; i < 200; i++) {
+        dust.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          z: Math.random() * canvas.width,
+          opacity: Math.random() * 0.12
+        });
+      }
+    }
+
+    function spawnMeteor() {
+      meteors.push({
+        x: Math.random() * canvas.width,
+        y: -200,
+        vx: 2,
+        vy: 3
+      });
+    }
+
+    setInterval(() => {
+      if (meteors.length < 1) spawnMeteor();
+    }, 7500);
+
+    function drawNebula() {
+      let gradient = ctx.createRadialGradient(
+        canvas.width * 0.3,
+        canvas.height * 0.4,
+        50,
+        canvas.width * 0.3,
+        canvas.height * 0.4,
+        700
+      );
+      gradient.addColorStop(0, "rgba(120,50,200,0.18)");
+      gradient.addColorStop(0.5, "rgba(50,150,255,0.06)");
+      gradient.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function animate() {
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawNebula();
+
+      let cx = canvas.width / 2;
+      let cy = canvas.height / 2;
+
+      dust.forEach(p => {
+        p.z -= 2;
+        if (p.z <= 0) p.z = canvas.width;
+        let sx = (p.x - cx) * (canvas.width / p.z) + cx;
+        let sy = (p.y - cy) * (canvas.width / p.z) + cy;
+        ctx.fillStyle = `rgba(255,255,255,${p.opacity})`;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      stars.forEach(star => {
+        star.z -= 4;
+        if (star.z <= 0) {
+          star.z = canvas.width;
+          star.x = Math.random() * canvas.width;
+          star.y = Math.random() * canvas.height;
+        }
+        let sx = (star.x - cx) * (canvas.width / star.z) + cx;
+        let sy = (star.y - cy) * (canvas.width / star.z) + cy;
+        let size = (1 - star.z / canvas.width) * 2.5;
+        ctx.fillStyle = star.color;
+        ctx.beginPath();
+        ctx.arc(sx, sy, size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      meteors.forEach((m, index) => {
+        m.x += m.vx;
+        m.y += m.vy;
+        let grad = ctx.createLinearGradient(m.x, m.y, m.x - 200, m.y - 200);
+        grad.addColorStop(0, "white");
+        grad.addColorStop(0.3, "yellow");
+        grad.addColorStop(0.6, "orange");
+        grad.addColorStop(1, "transparent");
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(m.x - 220, m.y - 220);
+        ctx.stroke();
+        if (m.y > canvas.height + 400) {
+          meteors.splice(index, 1);
+        }
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    function playStory() {
+      timeline.forEach(event => {
+        setTimeout(() => {
+          storyContainer.style.opacity = 0;
+          setTimeout(() => {
+            storyMsg.innerText = event.text;
+            if (event.img) {
+              storyImg.src = event.img;
+              storyImg.style.display = "block";
+            } else {
+              storyImg.style.display = "none";
+            }
+            storyContainer.style.opacity = 1;
+          }, 1000);
+        }, event.time);
+      });
+
+      setTimeout(() => {
+        storyContainer.style.opacity = 0;
+        setTimeout(() => {
+          finalBox.style.opacity = "1";
+          finalBox.style.pointerEvents = "auto";
+        }, 1000);
+      }, FINAL_BOX_TIME);
+    }
+
+    startBtn.addEventListener("click", () => {
+      music.volume = 0.8;
+      music.play();
+
+      intro.style.opacity = "0";
+      canvas.style.opacity = "1";
+
+      setTimeout(() => {
+        intro.style.display = "none";
+      }, 2500);
+
+      createStars();
+      createDust();
+      animate();
+      playStory();
+    });
+
+    yesBtn.addEventListener("click", () => {
+      finalBox.style.opacity = "0";
+      finalBox.style.pointerEvents = "none";
+      setTimeout(() => {
+        goodMessage.style.opacity = "1";
+      }, 1500);
+    });
+
+    noBtn.addEventListener("mouseover", () => {
+      noBtn.style.position = "absolute";
+      noBtn.style.left = Math.random() * (window.innerWidth - 100) + "px";
+      noBtn.style.top = Math.random() * (window.innerHeight - 50) + "px";
+    });
+
+    window.addEventListener("resize", () => {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      createStars();
+      createDust();
+    });
+  </script>
+</body>
+
+</html>
